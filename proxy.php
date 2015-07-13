@@ -4,9 +4,10 @@
  * Place here any hosts for which we are to be a proxy -
  * e.g. the host on which the J2EE APIs we'll be proxying are running
  * */
-$ALLOWED_HOSTS = array(
-    'localhost'
-);
+@require_once('config.php');
+$ALLOWED_HOSTS = array();
+if(isset($SETTING_ALLOWED_HOSTS))
+    $ALLOWED_HOSTS = $SETTING_ALLOWED_HOSTS; # Override with setting from config.php
 
 /**
  * AJAX Cross Domain (PHP) Proxy 0.8
@@ -114,7 +115,7 @@ if ( CSAJAX_FILTERS ) {
 	$parsed = $p_request_url;
 	if ( CSAJAX_FILTER_DOMAIN ) {
 		if ( !in_array( $parsed['host'], $valid_requests ) ) {
-			csajax_debug_message( 'Invalid domain - ' . $parsed['host'] . ' does not included in valid requests' );
+			csajax_debug_message( 'Invalid domain - ' . $parsed['host'] . ' is not included in valid request domains' );
 			exit;
 		}
 	} else {
@@ -124,7 +125,7 @@ if ( CSAJAX_FILTERS ) {
 		$check_url .= isset( $parsed['port'] ) ? ':' . $parsed['port'] : '';
 		$check_url .= isset( $parsed['path'] ) ? $parsed['path'] : '';
 		if ( !in_array( $check_url, $valid_requests ) ) {
-			csajax_debug_message( 'Invalid domain - ' . $request_url . ' does not included in valid requests' );
+			csajax_debug_message( 'Invalid domain - ' . $request_url . ' is not included in valid request domain' );
 			exit;
 		}
 	}
@@ -156,9 +157,11 @@ if ( 'POST' == $request_method ) {
     }
 
     if($isMultiPart || $has_files){
-        foreach(explode("&",$post_data) as $i => $param){
-            $params = explode("=",$param);
-            $file_params[$params[0]] = $params[1];
+        foreach(explode("&",$post_data) as $i => $param) {
+            $params = explode("=", $param);
+            $xvarname = $params[0];
+            if (!empty($xvarname))
+                $file_params[$xvarname] = $params[1];
         }
     }
 
