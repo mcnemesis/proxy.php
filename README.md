@@ -11,17 +11,18 @@ where it is not specified by the client (motivation being, I was specifically us
 HOW-TO:
 =======
 
-To quote the original How-To:
+Adapting from the the original How-To:
 
-    To use the proxy effectively you will require a server with .htaccess and mod_rewrite support.
-    
-    INSTALL
+To use the proxy effectively you will require a server with .htaccess and mod_rewrite support.
+
+INSTALL
+
     1. Preferably use the proxy on it's own domain e.g. http://proxy.xyz.com/
     
-    2. Rename htaccess.txt to .htaccess and install on your server.
+    2. Download or clone this repo and copy the `config.php` and `proxy.php` files into the root web folder (or wherever it is you want to deploy the proxy).
     
-    3. Download the proxy script and install it in the root web folder as 'index.php'.
+    3. [Optionally] rename the `proxy.php` script to 'index.php' if you wish to proxy with the index implied...
     
-    4. Edit the script and adjust the target domain name you would like to scrape!
+    4. Edit the `config.php` script - adjust the target domain list to reflect the only domains you would like to proxy for!
     
     Done!
