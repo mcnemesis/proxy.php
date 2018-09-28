@@ -11,13 +11,20 @@ where it is not specified by the client (motivation being, I was specifically us
 HOW-TO:
 =======
 
-Adapting from the the original How-To:
+Send request to your script and set query parametr `csurl` to desired URL with its schema.
 
-To use the proxy effectively you will require a server with .htaccess and mod_rewrite support.
+Example:
+
+`https://proxy.xyz.com/proxy.php?csurl=https://github.com`
+
+Also you can use cURL for test in this way:
+
+`curl https://proxy.xyz.com/proxy.php?csurl=https://github.com`
+
+Where `proxy.xyz.com` - your domain name.
 
 INSTALL
-
-    1. Preferably use the proxy on it's own domain e.g. http://proxy.xyz.com/
+`    1. Preferably use the proxy on it's own domain e.g. http://proxy.xyz.com/
     
     2. Download or clone this repo and copy the `config.php` and `proxy.php` files into the root web folder (or wherever it is you want to deploy the proxy).
     
@@ -25,4 +32,4 @@ INSTALL
     
     4. Edit the `config.php` script - adjust the target domain list to reflect the only domains you would like to proxy for!
     
-    Done!
+    Done!`
