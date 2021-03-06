@@ -9,6 +9,9 @@ $ALLOWED_HOSTS = array();
 if(isset($SETTING_ALLOWED_HOSTS))
     $ALLOWED_HOSTS = $SETTING_ALLOWED_HOSTS; # Override with setting from config.php
 
+$CSURL_DEFAULT = isset($SETTING_CSURL_DEFAULT) ? $SETTING_CSURL_DEFAULT : "";
+$PROXY_PATH = isset($SETTING_PROXY_PATH) ? $SETTING_PROXY_PATH : "";
+
 /**
  * AJAX Cross Domain (PHP) Proxy 0.8
  *    by Iacovos Constantinou (http://www.iacons.net)
@@ -33,6 +36,21 @@ define( 'CSAJAX_FILTER_DOMAIN', true );
  * Set debugging to true to receive additional messages - really helpful on development
  */
 define( 'CSAJAX_DEBUG', true );
+
+/**
+ * Set to true in order to enable transparent mode
+ * Transparent mode allows to directly explicit parameters and queries in the proxy url without the need
+ * to the explicit them into the csurl. For example:
+ * If default csurl is NOT enabled
+ * http://yourdomain.com/proxy/api/tasks?csurl=https://destination.com --(becomes)--> https://destination.com/api/tasks 
+ * 
+ * If default csurl is set to https://destination.com
+ * http://yourdomain.com/proxy/api/tasks? --(becomes)--> https://destination.com/api/tasks 
+ * 
+ * NOTE: If set to true SETTING_PROXY_PATH in config file should be configured with the proxy path.
+ *       In the previous example the SETTING_PROXY_PATH constant should be set as SETTING_PROXY_PATH = "/proxy" 
+ */
+define ( 'CS_TRANSPARENT', false );
 
 /**
  * A set of valid cross domain requests
@@ -87,15 +105,43 @@ if ( 'GET' == $request_method ) {
 }
 
 // Get URL from `csurl` in GET or POST data, before falling back to X-Proxy-URL header.
+// If none of the have `csurl` use default value if set
 if ( isset( $_REQUEST['csurl'] ) ) {
     $request_url = urldecode( $_REQUEST['csurl'] );
 } else if ( isset( $_SERVER['HTTP_X_PROXY_URL'] ) ) {
     $request_url = urldecode( $_SERVER['HTTP_X_PROXY_URL'] );
+} else if(strlen($CSURL_DEFAULT) > 0){
+	$request_url = $CSURL_DEFAULT;
 } else {
     header( $_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
     header( 'Status: 404 Not Found' );
     $_SERVER['REDIRECT_STATUS'] = 404;
     exit;
+}
+
+// Contruct the URL if the proxy is set as transparent
+if(CS_TRANSPARENT && strlen($PROXY_PATH) > 0){
+	$url_chunks = explode($PROXY_PATH, $_SERVER['REQUEST_URI']);
+	if( !isset($url_chunks[1]) ){
+		csajax_debug_message( 'Invalid proxy path - make sure the proxy path is correct' );
+		exit;
+	}
+	$this_url = parse_url ( $url_chunks[1] );
+
+	// Check if there is a query in the URL and remove the csurl if present
+	$this_url_query = '';
+	if(isset($this_url['query'])){
+		$query_array = explode("&", $this_url["query"]);
+		foreach($query_array as $query){
+			list($k, $v) = explode('=', $query);
+			if($k != 'csurl'){
+				$this_url_query .= $query.'&';
+			}
+		}
+		if(strlen($this_url_query) > 0)
+			$this_url_query = '?'.rtrim($this_url_query, '&');
+	}
+	$request_url = rtrim($request_url, '/').$this_url['path'].$this_url_query;
 }
 
 $p_request_url = parse_url( $request_url );
