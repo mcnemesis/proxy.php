@@ -105,7 +105,7 @@ if ( 'GET' == $request_method ) {
 }
 
 // Get URL from `csurl` in GET or POST data, before falling back to X-Proxy-URL header.
-// If none of the have `csurl` use default value if set
+// If none of them have `csurl`, use default value if set
 if ( isset( $_REQUEST['csurl'] ) ) {
     $request_url = urldecode( $_REQUEST['csurl'] );
 } else if ( isset( $_SERVER['HTTP_X_PROXY_URL'] ) ) {
